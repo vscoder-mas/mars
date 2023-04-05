@@ -236,16 +236,16 @@ def make_static_framework(src_lib, dst_framework, header_file_mappings, header_f
 
 def check_ndk_env():
     try:
-        ndk_path = os.environ['NDK_ROOT']
+        ndk_path = os.environ['ANDROID_NDK']
     except KeyError as identifier:
-        print("Error: ndk does not exist or you do not set it into NDK_ROOT.")
+        print("Error: ndk does not exist or you do not set it into ANDROID_NDK.")
         return False
     
     if ndk_path is not None and ndk_path.strip():
         print("ndk path:%s"%ndk_path)
 
     if not ndk_path:
-        print("Error: ndk does not exist or you do not set it into NDK_ROOT.")
+        print("Error: ndk does not exist or you do not set it into ANDROID_NDK.")
         return False
 
     if not os.path.isfile(os.path.join(ndk_path, "source.properties")):
