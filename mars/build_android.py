@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 #!/usr/bin/env python
 import os
 import sys
@@ -8,7 +9,7 @@ import platform
 
 from mars_utils import *
 
-
+#build_android.py 当前目录
 SCRIPT_PATH = os.path.split(os.path.realpath(__file__))[0]
 
 def system_is_windows():
@@ -77,15 +78,14 @@ def get_android_strip_cmd(arch):
 def build_android(incremental, arch, target_option=''):
 
     before_time = time.time()
-    
-    # clean(BUILD_OUT_PATH, incremental)
+    #创建生成目录
     if os.path.exists(BUILD_OUT_PATH):
         shutil.rmtree(BUILD_OUT_PATH)
     os.makedirs(BUILD_OUT_PATH)
     os.chdir(BUILD_OUT_PATH)
     
     build_cmd = ANDROID_BUILD_CMD %(SCRIPT_PATH, ANDROID_GENERATOR, arch, NDK_ROOT, NDK_ROOT, target_option)
-    print("build cmd:" + build_cmd)
+    print("- build cmd:" + build_cmd)
     ret = os.system(build_cmd)
     os.chdir(SCRIPT_PATH)
 
@@ -100,23 +100,23 @@ def build_android(incremental, arch, target_option=''):
         symbol_path = ANDROID_SYMBOL_PATH
         lib_path = ANDROID_LIBS_PATH
 
-    if not os.path.exists(symbol_path):
-        os.makedirs(symbol_path)
+    if os.path.exists(symbol_path):
+        shutil.rmtree(symbol_path)
+    os.makedirs(symbol_path)
 
     symbol_path = symbol_path + arch
     if os.path.exists(symbol_path):
         shutil.rmtree(symbol_path)
-
     os.mkdir(symbol_path)
 
     
-    if not os.path.exists(lib_path):
-        os.makedirs(lib_path)
+    if os.path.exists(lib_path):
+        shutil.rmtree(lib_path)
+    os.makedirs(lib_path)
 
     lib_path = lib_path + arch
     if os.path.exists(lib_path):
         shutil.rmtree(lib_path)
-
     os.mkdir(lib_path)
 
 
@@ -140,21 +140,14 @@ def build_android(incremental, arch, target_option=''):
 
 
     after_time = time.time()
-
     print("use time:%d s" % (int(after_time - before_time)))
     return True
 
 def main(incremental, archs, target_option='', tag=''):
     if not check_ndk_env():
         return
-
+    
     gen_mars_revision_file(SCRIPT_PATH + '/comm', tag)
-
-    # if os.path.exists(ANDROID_LIBS_PATH):
-    #     shutil.rmtree(ANDROID_LIBS_PATH)
-
-    # if os.path.exists(ANDROID_SYMBOL_PATH):
-    #     shutil.rmtree(ANDROID_SYMBOL_PATH)
 
     for arch in archs:
         if not build_android(incremental, arch, target_option):
