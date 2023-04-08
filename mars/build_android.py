@@ -24,9 +24,9 @@ else:
     ANDROID_GENERATOR = ''
 
 try:
-    ANDROID_NDK = os.environ['ANDROID_NDK']
+    NDK_ROOT = os.environ['NDK_ROOT']
 except KeyError as identifier:
-    ANDROID_NDK = ''
+    NDK_ROOT = ''
 
 
 BUILD_OUT_PATH = 'cmake_build/Android'
@@ -44,20 +44,20 @@ ANDROID_XLOG_LIBS_PATH = 'libraries/mars_xlog_sdk/libs/'
 
 
 ANDROID_STRIP_FILE = {
-        'armeabi': ANDROID_NDK + '/toolchains/arm-linux-androideabi-4.9/prebuilt/%s/bin/arm-linux-androideabi-strip',
-        'armeabi-v7a': ANDROID_NDK + '/toolchains/arm-linux-androideabi-4.9/prebuilt/%s/bin/arm-linux-androideabi-strip',
-        'x86': ANDROID_NDK + '/toolchains/x86-4.9/prebuilt/%s/bin/i686-linux-android-strip',
-        'arm64-v8a': ANDROID_NDK + '/toolchains/aarch64-linux-android-4.9/prebuilt/%s/bin/aarch64-linux-android-strip',
-        'x86_64': ANDROID_NDK + '/toolchains/x86_64-4.9/prebuilt/%s/bin/x86_64-linux-android-strip',
+        'armeabi': NDK_ROOT + '/toolchains/arm-linux-androideabi-4.9/prebuilt/%s/bin/arm-linux-androideabi-strip',
+        'armeabi-v7a': NDK_ROOT + '/toolchains/arm-linux-androideabi-4.9/prebuilt/%s/bin/arm-linux-androideabi-strip',
+        'x86': NDK_ROOT + '/toolchains/x86-4.9/prebuilt/%s/bin/i686-linux-android-strip',
+        'arm64-v8a': NDK_ROOT + '/toolchains/aarch64-linux-android-4.9/prebuilt/%s/bin/aarch64-linux-android-strip',
+        'x86_64': NDK_ROOT + '/toolchains/x86_64-4.9/prebuilt/%s/bin/x86_64-linux-android-strip',
          }
 
 
 ANDROID_STL_FILE = {
-        'armeabi': ANDROID_NDK + '/sources/cxx-stl/llvm-libc++/libs/armeabi/libc++_shared.so',
-        'armeabi-v7a': ANDROID_NDK + '/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a/libc++_shared.so',
-        'x86': ANDROID_NDK + '/sources/cxx-stl/llvm-libc++/libs/x86/libc++_shared.so',
-        'arm64-v8a': ANDROID_NDK + '/sources/cxx-stl/llvm-libc++/libs/arm64-v8a/libc++_shared.so',
-        'x86_64': ANDROID_NDK + '/sources/cxx-stl/llvm-libc++/libs/x86_64/libc++_shared.so',
+        'armeabi': NDK_ROOT + '/sources/cxx-stl/llvm-libc++/libs/armeabi/libc++_shared.so',
+        'armeabi-v7a': NDK_ROOT + '/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a/libc++_shared.so',
+        'x86': NDK_ROOT + '/sources/cxx-stl/llvm-libc++/libs/x86/libc++_shared.so',
+        'arm64-v8a': NDK_ROOT + '/sources/cxx-stl/llvm-libc++/libs/arm64-v8a/libc++_shared.so',
+        'x86_64': NDK_ROOT + '/sources/cxx-stl/llvm-libc++/libs/x86_64/libc++_shared.so',
         }
 
 
@@ -78,10 +78,13 @@ def build_android(incremental, arch, target_option=''):
 
     before_time = time.time()
     
-    clean(BUILD_OUT_PATH, incremental)
+    # clean(BUILD_OUT_PATH, incremental)
+    if os.path.exists(BUILD_OUT_PATH):
+        shutil.rmtree(BUILD_OUT_PATH)
+    os.makedirs(BUILD_OUT_PATH)
     os.chdir(BUILD_OUT_PATH)
     
-    build_cmd = ANDROID_BUILD_CMD %(SCRIPT_PATH, ANDROID_GENERATOR, arch, ANDROID_NDK, ANDROID_NDK, target_option)
+    build_cmd = ANDROID_BUILD_CMD %(SCRIPT_PATH, ANDROID_GENERATOR, arch, NDK_ROOT, NDK_ROOT, target_option)
     print("build cmd:" + build_cmd)
     ret = os.system(build_cmd)
     os.chdir(SCRIPT_PATH)
