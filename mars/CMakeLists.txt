@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.6)
 
-#SET(CMAKE_INSTALL_PREFIX <path> CACHE PATH <comment> FORCE) FORCE必填项
+#SET(CMAKE_INSTALL_PREFIX <path> CACHE PATH <comment> FORCE) FORCE必填项, 就是 cmake 有的第一个参数路径
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}" CACHE PATH "Installation directory" FORCE)
 message(STATUS "CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}")
 
@@ -23,16 +23,15 @@ include(GNUInstallDirs)
 add_subdirectory(zstd/build/cmake/lib zstd)
 
 project (mars)
-
 include(comm/CMakeUtils.txt)
-
 include_directories(.)
 include_directories(..)
 
+#${CMAKE_SYSTEM_NAME} 当前操作系统 exp: Linux, Android
 set(SELF_LIBS_OUT ${CMAKE_SYSTEM_NAME}.out)
+message(STATUS "SELF_LIBS_OUT=${SELF_LIBS_OUT}")
 
 if(ANDROID)
-
     if(NATIVE_CALLBACK)
         message("common native callback")
         add_definitions(-DNATIVE_CALLBACK)
@@ -40,18 +39,18 @@ if(ANDROID)
 
     find_library(log-lib log)
     find_library(z-lib z)
-
     link_directories(app baseevent log sdt stn comm boost zstd)
 
     # marsxlog
     set(SELF_LIB_NAME marsxlog)
-
     file(GLOB SELF_SRC_FILES libraries/mars_android_sdk/jni/JNI_OnLoad.cc
             libraries/mars_xlog_sdk/jni/import.cc)
 
     add_library(${SELF_LIB_NAME} SHARED ${SELF_SRC_FILES})
+    # LIBRARY->动态库
+    # ARCHIVE->静态库
+    # RUNTIME->可执行二进制文件	
     install(TARGETS ${SELF_LIB_NAME} LIBRARY DESTINATION ${SELF_LIBS_OUT} ARCHIVE DESTINATION ${SELF_LIBS_OUT})
-
     get_filename_component(EXPORT_XLOG_EXP_FILE libraries/mars_android_sdk/jni/export.exp ABSOLUTE)
 
     set(SELF_XLOG_LINKER_FLAG "-Wl,--gc-sections -Wl,--version-script='${EXPORT_XLOG_EXP_FILE}'") 
@@ -67,14 +66,11 @@ if(ANDROID)
                             ${z-lib}
                             )
  
+    # marsstn
     set(SELF_LIB_NAME marsstn)
-
     file(GLOB SELF_SRC_FILES libraries/mars_android_sdk/jni/*.cc)
-
     add_library(${SELF_LIB_NAME} SHARED ${SELF_SRC_FILES})
-
     install(TARGETS ${SELF_LIB_NAME} LIBRARY DESTINATION ${SELF_LIBS_OUT} ARCHIVE DESTINATION ${SELF_LIBS_OUT})
-
     link_directories(${SELF_LIBS_OUT})
 
 if(NOT MSVC)
