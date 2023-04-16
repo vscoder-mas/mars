@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 #!/usr/bin/env python
 import os
 import sys
@@ -5,29 +6,46 @@ import glob
 
 from mars_utils import *
 
-
+#build_ios.py 当前目录
 SCRIPT_PATH = os.path.split(os.path.realpath(__file__))[0]
-
 BUILD_OUT_PATH = 'cmake_build/iOS'
 INSTALL_PATH = BUILD_OUT_PATH + '/iOS.out'
 
-IOS_BUILD_SIMULATOR_CMD = 'cmake ../.. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../ios.toolchain.cmake -DPLATFORM=SIMULATOR -DENABLE_ARC=0 -DENABLE_BITCODE=0 -DENABLE_VISIBILITY=1 && make -j8 && make install'
-IOS_BUILD_OS_CMD = 'cmake ../.. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../ios.toolchain.cmake -DPLATFORM=OS -DENABLE_ARC=0 -DENABLE_BITCODE=0 -DENABLE_VISIBILITY=1 && make -j8 && make install'
+IOS_BUILD_SIMULATOR_CMD = 'cmake ../.. -DCMAKE_BUILD_TYPE=Release ' \
+                            '-DCMAKE_TOOLCHAIN_FILE=../../ios.toolchain.cmake ' \
+                            '-DPLATFORM=SIMULATOR ' \
+                            '-DENABLE_ARC=0 ' \
+                            '-DENABLE_BITCODE=0 ' \
+                            '-DENABLE_VISIBILITY=1 && make -j8 && make install'
+IOS_BUILD_OS_CMD = 'cmake ../.. -DCMAKE_BUILD_TYPE=Release ' \
+                            '-DCMAKE_TOOLCHAIN_FILE=../../ios.toolchain.cmake ' \
+                            '-DPLATFORM=OS ' \
+                            '-DENABLE_ARC=0 ' \
+                            '-DENABLE_BITCODE=0 ' \
+                            '-DENABLE_VISIBILITY=1 && make -j8 && make install'
 
-GEN_IOS_OS_PROJ = 'cmake ../.. -G Xcode -DCMAKE_TOOLCHAIN_FILE=../../ios.toolchain.cmake -DPLATFORM=OS -DIOS_ARCH="arm64" -DENABLE_ARC=0 -DENABLE_BITCODE=0 -DENABLE_VISIBILITY=1'
+GEN_IOS_OS_PROJ = 'cmake ../.. -G Xcode -DCMAKE_TOOLCHAIN_FILE=../../ios.toolchain.cmake ' \
+                                '-DPLATFORM=OS ' \
+                                '-DIOS_ARCH="arm64" ' \
+                                '-DENABLE_ARC=0 ' \
+                                '-DENABLE_BITCODE=0 ' \
+                                '-DENABLE_VISIBILITY=1'
 OPEN_SSL_ARCHS = ['x86_64', 'arm64']
 
 
 def build_ios(tag=''):
     gen_mars_revision_file('comm', tag)
     
-    clean(BUILD_OUT_PATH)
+    #创建生成目录
+    if os.path.exists(BUILD_OUT_PATH):
+        shutil.rmtree(BUILD_OUT_PATH)
+    os.makedirs(BUILD_OUT_PATH)
     os.chdir(BUILD_OUT_PATH)
     
     ret = os.system(IOS_BUILD_OS_CMD)
     os.chdir(SCRIPT_PATH)
     if ret != 0:
-        print('!!!!!!!!!!!build os fail!!!!!!!!!!!!!!!')
+        print('!!!!!!!!!!! build os failed !!!!!!!!!!!!!!!')
         return False
 
     libtool_os_dst_lib = INSTALL_PATH + '/os'
@@ -37,21 +55,23 @@ def build_ios(tag=''):
     if not libtool_libs(libtool_src_lib, libtool_os_dst_lib):
         return False
 
-    clean(BUILD_OUT_PATH)
-    os.chdir(BUILD_OUT_PATH)
-    ret = os.system(IOS_BUILD_SIMULATOR_CMD)
-    os.chdir(SCRIPT_PATH)
-    if ret != 0:
-        print('!!!!!!!!!!!build simulator fail!!!!!!!!!!!!!!!')
-        return False
+    # #模拟器编译
+    # clean(BUILD_OUT_PATH)
+    # os.chdir(BUILD_OUT_PATH)
+    # ret = os.system(IOS_BUILD_SIMULATOR_CMD)
+    # os.chdir(SCRIPT_PATH)
+    # if ret != 0:
+    #     print('!!!!!!!!!!!build simulator fail!!!!!!!!!!!!!!!')
+    #     return False
     
-    libtool_simulator_dst_lib = INSTALL_PATH + '/simulator'
-    if not libtool_libs(libtool_src_lib, libtool_simulator_dst_lib):
-        return False
+    # libtool_simulator_dst_lib = INSTALL_PATH + '/simulator'
+    # if not libtool_libs(libtool_src_lib, libtool_simulator_dst_lib):
+    #     return False
 
     lipo_src_libs = []
     lipo_src_libs.append(libtool_os_dst_lib)
-    lipo_src_libs.append(libtool_simulator_dst_lib)
+    #模拟器编译路径
+    # lipo_src_libs.append(libtool_simulator_dst_lib)
     ssl_lib = INSTALL_PATH + '/ssl'
     if not lipo_thin_libs('openssl/openssl_lib_iOS/libssl.a', ssl_lib, OPEN_SSL_ARCHS):
         return False
@@ -62,9 +82,7 @@ def build_ios(tag=''):
 
     lipo_src_libs.append(ssl_lib)
     lipo_src_libs.append(crypto_lib)
-
     lipo_dst_lib = INSTALL_PATH + '/mars'
-
     if not libtool_libs(lipo_src_libs, lipo_dst_lib):
         return False
 

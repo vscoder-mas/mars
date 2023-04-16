@@ -6,7 +6,7 @@
 build/
 /mars/captures
 obj/
-
+mars/comm/verinfo.h
 *.swp
 *.pyc
 xcuserdata
@@ -115,3 +115,6 @@ Debug-iphonesimulator
 cmake_build
 *.settings
 mars/cmake-build-debug
+
+
+

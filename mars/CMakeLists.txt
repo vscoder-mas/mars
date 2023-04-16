@@ -74,9 +74,11 @@ if(ANDROID)
     link_directories(${SELF_LIBS_OUT})
 
 if(NOT MSVC)
+    message(STATUS "!!!!!!!!!!!!!!!!! NOT MSVC !!!!!!!!!!!!!!!!!")
     set(CMAKE_FIND_LIBRARY_PREFIXES "lib")
     set(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".a")
 endif()
+    message(STATUS "!!!!!!!!!!!!!!!!! endif !!!!!!!!!!!!!!!!!")
     find_library(CRYPT_LIB crypto PATHS openssl/openssl_lib_android/${ANDROID_ABI} NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)
     find_library(SSL_LIB ssl PATHS openssl/openssl_lib_android/${ANDROID_ABI} NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)
 
@@ -94,7 +96,7 @@ endif()
                         ${CRYPT_LIB})
 
 elseif(APPLE)
-
+    message(STATUS "!!!!!!!!!!!!!!!!! APPLE !!!!!!!!!!!!!!!!!")
 endif()
 
 

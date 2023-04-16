@@ -83,10 +83,10 @@ def libtool_libs(src_libs, dst_lib):
     for l in src_libs:
         src_lib_str = '%s %s'%(src_lib_str, l)
 
-    print(src_lib_str)
+    print("- libtool_libs:" + src_lib_str)
     ret = os.system('libtool -static -no_warning_for_no_symbols -o %s %s' %(dst_lib, src_lib_str))
     if ret != 0:
-        print('!!!!!!!!!!!libtool %s fail!!!!!!!!!!!!!!!' %(dst_lib))
+        print('!!!!!!!!!!! libtool %s failed !!!!!!!!!!!!!!!' %(dst_lib))
         return False
 
     return True
@@ -105,7 +105,6 @@ def lipo_libs(src_libs, dst_lib):
     return True
 
 def lipo_thin_libs(src_lib, dst_lib, archs):
-
     tmp_results = []
     for arch in archs:
         if len(archs) == 1:
